@@ -6,50 +6,50 @@
 
 @layer base {
   :root {
-    --background: 240 20% 8%;
-    --foreground: 45 100% 96%;
+    --background: 240 20% 96%;
+    --foreground: 240 20% 15%;
 
-    --card: 240 15% 13%;
-    --card-foreground: 45 100% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 20% 15%;
 
-    --popover: 240 15% 13%;
-    --popover-foreground: 45 100% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 20% 15%;
 
-    --primary: 330 80% 65%;
-    --primary-foreground: 240 20% 8%;
+    --primary: 330 80% 55%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 260 60% 55%;
-    --secondary-foreground: 45 100% 96%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 15% 18%;
-    --muted-foreground: 240 10% 60%;
+    --muted: 240 15% 90%;
+    --muted-foreground: 240 10% 45%;
 
-    --accent: 45 100% 60%;
-    --accent-foreground: 240 20% 8%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 240 20% 10%;
 
     --destructive: 0 80% 55%;
-    --destructive-foreground: 45 100% 96%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%;
-    --input: 260 30% 25%;
-    --ring: 330 80% 65%;
+    --border: 240 15% 85%;
+    --input: 240 15% 85%;
+    --ring: 330 80% 55%;
 
     --radius: 0.75rem;
 
-    --sakura: 340 80% 78%;
-    --gold: 45 100% 60%;
-    --gem: 200 90% 55%;
-    --xp-green: 140 70% 50%;
-    --forest: 160 40% 20%;
+    --sakura: 340 80% 70%;
+    --gold: 45 100% 50%;
+    --gem: 200 90% 50%;
+    --xp-green: 140 70% 42%;
+    --forest: 160 40% 30%;
 
-    --sidebar-background: 240 15% 10%;
-    --sidebar-foreground: 45 100% 96%;
-    --sidebar-primary: 330 80% 65%;
-    --sidebar-primary-foreground: 240 20% 8%;
-    --sidebar-accent: 260 30% 20%;
-    --sidebar-accent-foreground: 45 100% 96%;
-    --sidebar-border: 260 30% 20%;
-    --sidebar-ring: 330 80% 65%;
+    --sidebar-background: 240 15% 98%;
+    --sidebar-foreground: 240 20% 15%;
+    --sidebar-primary: 330 80% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 93%;
+    --sidebar-accent-foreground: 240 20% 15%;
+    --sidebar-border: 240 15% 88%;
+    --sidebar-ring: 330 80% 55%;
   }
 }
 
@@ -82,7 +82,7 @@
     text-shadow: 0 0 10px hsl(45 100% 60% / 0.5);
   }
   .glass {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+    @apply bg-white/70 backdrop-blur-xl border border-border/60 shadow-sm;
   }
   .anime-gradient {
     background: linear-gradient(135deg, hsl(260 60% 55% / 0.3), hsl(330 80% 65% / 0.3));
