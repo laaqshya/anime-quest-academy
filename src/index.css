@@ -82,7 +82,7 @@
     text-shadow: 0 0 10px hsl(45 100% 60% / 0.5);
   }
   .glass {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50;
+    @apply bg-white/70 backdrop-blur-xl border border-border/60 shadow-sm;
   }
   .anime-gradient {
     background: linear-gradient(135deg, hsl(260 60% 55% / 0.3), hsl(330 80% 65% / 0.3));
