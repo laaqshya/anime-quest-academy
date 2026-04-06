@@ -39,7 +39,7 @@ const AnimeCharacter = ({ mood = "idle", message }: Props) => {
       case "happy": return { y: [0, -20, 0], rotate: [0, 5, -5, 0], transition: { duration: 0.6 } };
       case "sad": return { y: [0, 5, 0], rotate: [0, -3, 3, 0], transition: { duration: 0.8 } };
       case "wave": return { rotate: [0, 10, -10, 10, 0], transition: { duration: 1 } };
-      default: return { y: [0, -5, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } };
+      default: return { y: [0, -5, 0], transition: { duration: 3, repeat: Infinity, ease: "easeInOut" as const } };
     }
   };
 
