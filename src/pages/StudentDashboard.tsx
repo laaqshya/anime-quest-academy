@@ -47,7 +47,7 @@ const StudentDashboard = () => {
 
   // Descriptive Mode
   if (view === "descriptive" && selectedLevel) {
-    return <DescriptiveMode questions={selectedLevel.descriptiveQuestions} onComplete={handleDescComplete} onBack={() => { setView("levels"); setSelectedLevel(null); }} />;
+    return <DescriptiveMode questions={selectedLevel.descriptiveQuestions} levelId={selectedLevel.id} onComplete={handleDescComplete} onBack={() => { setView("levels"); setSelectedLevel(null); }} />;
   }
 
   return (
