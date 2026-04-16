@@ -1,49 +1,35 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Send, Upload, FileText, X } from "lucide-react";
+import { ArrowRight, ArrowLeft, Send, Upload, FileText, X, Image } from "lucide-react";
 import type { DescriptiveQuestion } from "@/data/gameData";
-import { useAutoSave } from "@/hooks/useAutoSave";
+import { useStudentAnswers } from "@/hooks/useStudentAnswers";
 import { useAntiCheat } from "@/hooks/useAntiCheat";
 import { toast } from "@/hooks/use-toast";
 
 interface Props {
   questions: DescriptiveQuestion[];
+  chapterId?: string;
   levelId?: string;
   onComplete: (xp: number, coins: number) => void;
   onBack: () => void;
 }
 
-const DescriptiveMode = ({ questions, levelId = "default", onComplete, onBack }: Props) => {
-  const { save, load, clear } = useAutoSave(levelId, "descriptive");
+const DescriptiveMode = ({ questions, chapterId, levelId = "default", onComplete, onBack }: Props) => {
+  const { submitDescriptiveAnswer } = useStudentAnswers();
   const { shouldAutoSubmit, preventCopyPaste } = useAntiCheat(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [uploadedFiles, setUploadedFiles] = useState<Record<string, { name: string; size: number }>>({});
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({});
+  const [fileNames, setFileNames] = useState<Record<string, { name: string; size: number }>>({});
+  const [saving, setSaving] = useState(false);
 
   const totalXp = questions.reduce((a, q) => a + q.xpReward, 0);
   const totalCoins = questions.reduce((a, q) => a + q.coinReward, 0);
 
-  // Load saved progress
-  useEffect(() => {
-    const saved = load();
-    if (saved) {
-      setAnswers(saved.answers);
-      setCurrentIdx(saved.currentIdx);
-      toast({ title: "📂 Progress restored!" });
-    }
-  }, []);
-
-  // Auto-save on change
-  useEffect(() => {
-    save(answers, currentIdx);
-  }, [answers, currentIdx]);
-
-  // Auto-submit on cheat
   useEffect(() => {
     if (shouldAutoSubmit) {
-      clear();
       onComplete(totalXp, totalCoins);
     }
   }, [shouldAutoSubmit]);
@@ -57,23 +43,27 @@ const DescriptiveMode = ({ questions, levelId = "default", onComplete, onBack }:
       toast({ title: "File too large (max 10MB)", variant: "destructive" });
       return;
     }
-    setUploadedFiles((p) => ({ ...p, [q.id]: { name: file.name, size: file.size } }));
+    setUploadedFiles((p) => ({ ...p, [q.id]: file }));
+    setFileNames((p) => ({ ...p, [q.id]: { name: file.name, size: file.size } }));
     toast({ title: `📎 ${file.name} attached` });
   };
 
   const removeFile = (qId: string) => {
-    setUploadedFiles((p) => {
-      const next = { ...p };
-      delete next[qId];
-      return next;
-    });
+    setUploadedFiles((p) => { const next = { ...p }; delete next[qId]; return next; });
+    setFileNames((p) => { const next = { ...p }; delete next[qId]; return next; });
   };
 
-  const handleNext = () => {
+  const saveCurrentAnswer = async () => {
+    setSaving(true);
+    await submitDescriptiveAnswer(q.id, answers[q.id], uploadedFiles[q.id]);
+    setSaving(false);
+  };
+
+  const handleNext = async () => {
+    await saveCurrentAnswer();
     if (currentIdx < questions.length - 1) {
       setCurrentIdx((p) => p + 1);
     } else {
-      clear();
       onComplete(totalXp, totalCoins);
     }
   };
@@ -105,25 +95,25 @@ const DescriptiveMode = ({ questions, levelId = "default", onComplete, onBack }:
               value={answers[q.id] || ""}
               onChange={(e) => setAnswers((p) => ({ ...p, [q.id]: e.target.value }))}
               placeholder="Write your answer here..."
-              className="flex-1 min-h-[160px] glass rounded-2xl p-6 resize-none focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground"
+              className="flex-1 min-h-[120px] glass rounded-2xl p-6 resize-none focus:outline-none focus:ring-2 focus:ring-primary text-foreground placeholder:text-muted-foreground"
               {...preventCopyPaste}
             />
 
             {/* File upload */}
             <div className="mt-3">
-              {uploadedFiles[q.id] ? (
+              {fileNames[q.id] ? (
                 <div className="glass rounded-xl p-3 flex items-center gap-3">
                   <FileText className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-semibold flex-1 truncate">{uploadedFiles[q.id].name}</span>
-                  <span className="text-xs text-muted-foreground">{(uploadedFiles[q.id].size / 1024).toFixed(0)} KB</span>
+                  <span className="text-sm font-semibold flex-1 truncate">{fileNames[q.id].name}</span>
+                  <span className="text-xs text-muted-foreground">{(fileNames[q.id].size / 1024).toFixed(0)} KB</span>
                   <button onClick={() => removeFile(q.id)} className="p-1 rounded hover:bg-destructive/20"><X className="w-4 h-4 text-destructive" /></button>
                 </div>
               ) : (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full glass rounded-xl p-3 flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:scale-[1.01] transition-all border-2 border-dashed border-muted-foreground/30"
+                  className="w-full glass rounded-xl p-4 flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:scale-[1.01] transition-all border-2 border-dashed border-muted-foreground/30"
                 >
-                  <Upload className="w-4 h-4" /> Upload PDF / Image (optional)
+                  <Image className="w-5 h-5" /> 📸 Upload Image / PDF of your solution
                 </button>
               )}
               <input ref={fileInputRef} type="file" accept=".pdf,.png,.jpg,.jpeg" className="hidden" onChange={handleFileUpload} />
@@ -132,11 +122,13 @@ const DescriptiveMode = ({ questions, levelId = "default", onComplete, onBack }:
         </AnimatePresence>
 
         <div className="flex justify-between mt-4">
-          <button onClick={() => currentIdx > 0 && setCurrentIdx((p) => p - 1)} disabled={currentIdx === 0} className="flex items-center gap-2 px-6 py-3 rounded-xl glass font-bold disabled:opacity-30 hover:scale-105 transition-transform">
+          <button onClick={() => currentIdx > 0 && setCurrentIdx((p) => p - 1)} disabled={currentIdx === 0}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl glass font-bold disabled:opacity-30 hover:scale-105 transition-transform">
             <ArrowLeft className="w-5 h-5" /> Previous
           </button>
-          <button onClick={handleNext} className="flex items-center gap-2 px-8 py-3 rounded-xl bg-secondary font-bold text-secondary-foreground glow-blue hover:scale-105 transition-transform">
-            {currentIdx < questions.length - 1 ? (<>Next <ArrowRight className="w-5 h-5" /></>) : (<>Submit <Send className="w-5 h-5" /></>)}
+          <button onClick={handleNext} disabled={saving}
+            className="flex items-center gap-2 px-8 py-3 rounded-xl bg-secondary font-bold text-secondary-foreground glow-blue hover:scale-105 transition-transform disabled:opacity-50">
+            {saving ? "Saving..." : currentIdx < questions.length - 1 ? (<>Next <ArrowRight className="w-5 h-5" /></>) : (<>Submit <Send className="w-5 h-5" /></>)}
           </button>
         </div>
       </div>
