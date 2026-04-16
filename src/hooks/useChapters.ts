@@ -123,9 +123,14 @@ export function useQuestions(chapterId: string | null) {
   };
 
   const updateQuestion = async (id: string, updates: Partial<Omit<DbQuestion, "id">>) => {
-    const payload: Record<string, unknown> = { ...updates };
-    if (updates.options) payload.options = updates.options as unknown as any;
-    const { error } = await supabase.from("questions").update(payload).eq("id", id);
+    const { error } = await supabase.from("questions").update({
+      question_text: updates.question_text,
+      options: updates.options as unknown as any,
+      correct_index: updates.correct_index,
+      xp_reward: updates.xp_reward,
+      coin_reward: updates.coin_reward,
+      sort_order: updates.sort_order,
+    }).eq("id", id);
     if (error) { toast({ title: "Failed to update question", variant: "destructive" }); return; }
     const updater = (p: DbQuestion[]) => p.map((q) => (q.id === id ? { ...q, ...updates } : q));
     setMcqQuestions(updater);
