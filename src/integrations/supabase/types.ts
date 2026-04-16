@@ -14,7 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chapters: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          chapter_id: string
+          coin_reward: number
+          correct_index: number | null
+          created_at: string
+          id: string
+          options: Json | null
+          question_text: string
+          sort_order: number
+          type: Database["public"]["Enums"]["question_type"]
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          chapter_id: string
+          coin_reward?: number
+          correct_index?: number | null
+          created_at?: string
+          id?: string
+          options?: Json | null
+          question_text: string
+          sort_order?: number
+          type: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          chapter_id?: string
+          coin_reward?: number
+          correct_index?: number | null
+          created_at?: string
+          id?: string
+          options?: Json | null
+          question_text?: string
+          sort_order?: number
+          type?: Database["public"]["Enums"]["question_type"]
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_answers: {
+        Row: {
+          answer_text: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          is_correct: boolean | null
+          question_id: string
+          selected_option: number | null
+        }
+        Insert: {
+          answer_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_correct?: boolean | null
+          question_id: string
+          selected_option?: number | null
+        }
+        Update: {
+          answer_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_correct?: boolean | null
+          question_id?: string
+          selected_option?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +140,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      question_type: "mcq" | "descriptive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +267,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      question_type: ["mcq", "descriptive"],
+    },
   },
 } as const
